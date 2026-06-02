@@ -1,4 +1,4 @@
-namespace InventarioApp.models;
+namespace InventarioApp.Models;
 
 public enum EstadoProducto
 {

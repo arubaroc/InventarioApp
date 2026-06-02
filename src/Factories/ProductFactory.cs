@@ -1,10 +1,10 @@
 namespace InventarioApp.Factories;
 
-using InventarioApp.models;
+using InventarioApp.Models;
 public static class ProductFactory
 {
     private static int _nextId = 1;
-    public static Producto crear(
+    public static Producto Crear(
         string nombre,
         string descripcion,
         decimal precio,
@@ -33,5 +33,19 @@ public static class ProductFactory
             Categoria = categoria,
             FechaRegistro = DateTime.Now
         };
+    }
+
+    public static Producto CrearConStock(
+        string nombre,
+        string descripcion,
+        decimal precio,
+        int cantidad)
+    {
+        if (cantidad <= 0)
+            throw new ArgumentException("La cantidad del producto debe ser mayor que cero para crear un producto con stock.", nameof(cantidad));
+
+        var producto = Crear(nombre, descripcion, precio, cantidad);
+        producto.Estado = EstadoProducto.Activo;
+        return producto;
     }
 }
