@@ -1,168 +1,161 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using InventarioApp.Models;
+namespace InventarioApp.Repositories;
 
-namespace InventarioApp.Repositories
+public class InMemoryProductoRepository : IProductoRepository
 {
-    public class InMemoryProductoRepository : IProductoReprository
+    private readonly List<Producto> _productos = new List<Producto>();
+    private int _proximoId = 1;
+
+    public void Agregar(Producto producto)
     {
-        private readonly List<Producto> _productos = new List<Producto>();
-        private int _proximoId = 1;
-
-        public void Agregar(Producto producto)
+        if (producto == null)
         {
-            if (producto == null)
-            {
-                throw new ArgumentNullException(nameof(producto));
-            }
-
-            producto.Id = _proximoId++;
-            _productos.Add(producto);
+            throw new ArgumentNullException(nameof(producto));
         }
 
-        public Producto ObtenerPorId(int id)
-        {
-            return _productos.FirstOrDefault(p => p.Id == id);
-        }
-
-        public IEnumerable<Producto> ObtenerTodos()
-        {
-            return _productos.AsReadOnly();
-        }
-
-        public bool Actualizar(Producto producto)
-        {
-            if (producto == null)
-            {
-                throw new ArgumentNullException(nameof(producto));
-            }
-
-            var existente = GetById(producto.Id);
-            if (existente == null)
-            {
-                return false;
-            }
-
-            existente.Nombre = producto.Nombre;
-            existente.Cantidad = producto.Cantidad;
-            existente.Precio = producto.Precio;
-            existente.Categoria = producto.Categoria;
-            existente.Descripcion = producto.Descripcion;
-
-            return true;
-        }
-
-        public bool Eliminar(Guid id)
-        {
-            var producto = GetById(id);
-            if (producto == null) return false;
-
-            return _productos.Remove(producto);
-        }
-        public int Cantidad => _productos.Count;
-
-        public IEnumerable<Producto> BuscarPorCategoria(CategoriaProducto categoria)
-        {
-            return _productos.Where(p => p.Categoria == categoria).ToList();
-        }
-
-        /// <summary>
-        /// Metodos con LINQ para buscar productos por nombre o por rango de precio
-        /// </summary>
-        /// <param name="nombre"></param>
-        /// <returns></returns>
-        public IEnumerable<Producto> BuscarPorNombre(string nombre)
-        {
-            if (string.IsNullOrWhiteSpace(nombre))
-            {
-                return Enumerable.Empty<Producto>();
-            }
-
-            return _productos.Where(p => p.Nombre.Contains(nombre, StringComparison.OrdinalIgnoreCase)).ToList();
-        }
-
-        public IEnumerable<Producto> BuscarPorRangoPrecio(decimal precioMinimo, decimal precioMaximo)
-        {
-            if (precioMinimo < 0 || precioMaximo < 0)
-            {
-                throw new ArgumentException("Los precios no pueden ser negativos.");
-            }
-
-            if (precioMinimo > precioMaximo)
-            {
-                throw new ArgumentException("El precio mínimo no puede ser mayor que el precio máximo.");
-            }
-
-            return _productos.Where(p => p.Precio >= precioMinimo && p.Precio <= precioMaximo).ToList();
-        }
-
-        // select y any
-        public IEnumerable<string> ObtenerNombresProductos()
-        {
-            return _productos.Select(p => p.Nombre).ToList();
-        }
-
-        public bool ExisteStockBajo()
-        {
-            return _productos.Any(p => p.Cantidad < 5);
-        }
-
-        public IEnumerable<Producto> ObtenerProductosOrdenadosPorPrecio()
-        {
-            return _productos.OrderBy(p => p.Precio).ToList();
-        }
-
-        public IEnumerable<Producto> ObtenerTopPorPrecio(int cantidad)
-        {
-            if (cantidad <= 0)
-            {
-                throw new ArgumentException("La cantidad debe ser mayor que cero.", nameof(cantidad));
-            }
-
-            return _productos.OrderByDescending(p => p.Precio).Take(cantidad).ToList();
-        }
-
-        public IEnumerable<IGrouping<CategoriaProducto, Producto>> AgruparPorCategoria()
-        {
-            return _productos.GroupBy(p: Producto => p.Categoria).ToList();
-        }
-
-        public Dictionary<CategoriaProducto, int> ContarProductosPorCategoria()
-        {
-            return _productos.GroupBy(p => p.Categoria)
-                             .ToDictionary(g => g.Key, g => g.Count());
-        }
-
-        public decimal ObtenerValorTotalInventario()
-        {
-            return _productos.Sum(p => p.Precio * p.Cantidad);
-        }
-
-        public decimal ObtenerPrecioPromedio()
-        {
-            if (productos.Count == 0) return 0;
-            return _productos.Average(p => p.Precio);
-        }
-
-        public Producto? productoMasCaro()
-        {
-            return _productos.MaxBy(p: Producto => p.Precio);
-        }
-
-        public Dictionary<CategoriaProducto, decimal> ObtenerValorTotalPorCategoria()
-        {
-            return _productos.GroupBy(p: Producto => p.Categoria)
-                             .ToDictionary(g => g.Key, g => g.Sum(p => p.Precio * p.Cantidad));
-        }
-
-        public IEnumerable<Producto> ObtenerProductosConStockBajo(int umbral = 5)
-        {
-            return _productos.Where(p => p.Cantidad < umbral).ToList();
-        }
-
+        producto.Id = _proximoId++;
+        _productos.Add(producto);
     }
 
+    public Producto ObtenerPorId(int id)
+    {
+        return _productos.FirstOrDefault(p => p.Id == id);
+    }
 
+    public IEnumerable<Producto> ObtenerTodos()
+    {
+        return _productos.AsReadOnly();
+    }
+
+    public bool Actualizar(Producto producto)
+    {
+        if (producto == null)
+        {
+            throw new ArgumentNullException(nameof(producto));
+        }
+
+        var existente = GetById(producto.Id);
+        if (existente == null)
+        {
+            return false;
+        }
+
+        existente.Nombre = producto.Nombre;
+        existente.Cantidad = producto.Cantidad;
+        existente.Precio = producto.Precio;
+        existente.Categoria = producto.Categoria;
+        existente.Descripcion = producto.Descripcion;
+
+        return true;
+    }
+
+    public bool Eliminar(Guid id)
+    {
+        var producto = GetById(id);
+        if (producto == null) return false;
+
+        return _productos.Remove(producto);
+    }
+    public int Cantidad => _productos.Count;
+
+    public IEnumerable<Producto> BuscarPorCategoria(CategoriaProducto categoria)
+    {
+        return _productos.Where(p => p.Categoria == categoria).ToList();
+    }
+
+    /// <summary>
+    /// Metodos con LINQ para buscar productos por nombre o por rango de precio
+    /// </summary>
+    /// <param name="nombre"></param>
+    /// <returns></returns>
+    public IEnumerable<Producto> BuscarPorNombre(string nombre)
+    {
+        if (string.IsNullOrWhiteSpace(nombre))
+        {
+            return Enumerable.Empty<Producto>();
+        }
+
+        return _productos.Where(p => p.Nombre.Contains(nombre, StringComparison.OrdinalIgnoreCase)).ToList();
+    }
+
+    public IEnumerable<Producto> BuscarPorRangoPrecio(decimal precioMinimo, decimal precioMaximo)
+    {
+        if (precioMinimo < 0 || precioMaximo < 0)
+        {
+            throw new ArgumentException("Los precios no pueden ser negativos.");
+        }
+
+        if (precioMinimo > precioMaximo)
+        {
+            throw new ArgumentException("El precio mínimo no puede ser mayor que el precio máximo.");
+        }
+
+        return _productos.Where(p => p.Precio >= precioMinimo && p.Precio <= precioMaximo).ToList();
+    }
+
+    // select y any
+    public IEnumerable<string> ObtenerNombresProductos()
+    {
+        return _productos.Select(p => p.Nombre).ToList();
+    }
+
+    public bool ExisteStockBajo()
+    {
+        return _productos.Any(p => p.Cantidad < 5);
+    }
+
+    public IEnumerable<Producto> ObtenerProductosOrdenadosPorPrecio()
+    {
+        return _productos.OrderBy(p => p.Precio).ToList();
+    }
+
+    public IEnumerable<Producto> ObtenerTopPorPrecio(int cantidad)
+    {
+        if (cantidad <= 0)
+        {
+            throw new ArgumentException("La cantidad debe ser mayor que cero.", nameof(cantidad));
+        }
+
+        return _productos.OrderByDescending(p => p.Precio).Take(cantidad).ToList();
+    }
+
+    public IEnumerable<IGrouping<CategoriaProducto, Producto>> AgruparPorCategoria()
+    {
+        return _productos.GroupBy(p: Producto => p.Categoria).ToList();
+    }
+
+    public Dictionary<CategoriaProducto, int> ContarProductosPorCategoria()
+    {
+        return _productos.GroupBy(p => p.Categoria)
+                         .ToDictionary(g => g.Key, g => g.Count());
+    }
+
+    public decimal ObtenerValorTotalInventario()
+    {
+        return _productos.Sum(p => p.Precio * p.Cantidad);
+    }
+
+    public decimal ObtenerPrecioPromedio()
+    {
+        if (productos.Count == 0) return 0;
+        return _productos.Average(p => p.Precio);
+    }
+
+    public Producto? productoMasCaro()
+    {
+        return _productos.MaxBy(p: Producto => p.Precio);
+    }
+
+    public Dictionary<CategoriaProducto, decimal> ObtenerValorTotalPorCategoria()
+    {
+        return _productos.GroupBy(p: Producto => p.Categoria)
+                         .ToDictionary(g => g.Key, g => g.Sum(p => p.Precio * p.Cantidad));
+    }
+
+    public IEnumerable<Producto> ObtenerProductosConStockBajo(int umbral = 5)
+    {
+        return _productos.Where(p => p.Cantidad < umbral).ToList();
+    }
 
 }
+
+
