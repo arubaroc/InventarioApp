@@ -7,5 +7,7 @@ public enum CategoriaProducto
     Alimentos,
     Hogar,
     Juguetes,
+    Muebles,
+    Accesorios,
     Otros
 }

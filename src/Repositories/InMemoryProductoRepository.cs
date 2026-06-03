@@ -1,10 +1,12 @@
+using InventarioApp.Models;
+
+
 namespace InventarioApp.Repositories;
 
 public class InMemoryProductoRepository : IProductoRepository
 {
     private readonly List<Producto> _productos = new List<Producto>();
     private int _proximoId = 1;
-
     public void Agregar(Producto producto)
     {
         if (producto == null)
@@ -18,7 +20,16 @@ public class InMemoryProductoRepository : IProductoRepository
 
     public Producto ObtenerPorId(int id)
     {
-        return _productos.FirstOrDefault(p => p.Id == id);
+        if (id <= 0)
+        {
+            throw new ArgumentException("El ID debe ser un número positivo.", nameof(id));
+        }
+        if (_productos.Count == 0)
+        {
+            throw new InvalidOperationException("No hay productos en el repositorio.");
+        }
+
+        return _productos.FirstOrDefault(p => p.Id == id) ?? throw new KeyNotFoundException($"No se encontró un producto con ID {id}.");
     }
 
     public IEnumerable<Producto> ObtenerTodos()
@@ -33,7 +44,7 @@ public class InMemoryProductoRepository : IProductoRepository
             throw new ArgumentNullException(nameof(producto));
         }
 
-        var existente = GetById(producto.Id);
+        var existente = ObtenerPorId(producto.Id);
         if (existente == null)
         {
             return false;
@@ -48,9 +59,9 @@ public class InMemoryProductoRepository : IProductoRepository
         return true;
     }
 
-    public bool Eliminar(Guid id)
+    public bool Eliminar(int id)
     {
-        var producto = GetById(id);
+        var producto = ObtenerPorId(id);
         if (producto == null) return false;
 
         return _productos.Remove(producto);
@@ -120,7 +131,7 @@ public class InMemoryProductoRepository : IProductoRepository
 
     public IEnumerable<IGrouping<CategoriaProducto, Producto>> AgruparPorCategoria()
     {
-        return _productos.GroupBy(p: Producto => p.Categoria).ToList();
+        return _productos.GroupBy(p => p.Categoria).ToList();
     }
 
     public Dictionary<CategoriaProducto, int> ContarProductosPorCategoria()
@@ -136,18 +147,18 @@ public class InMemoryProductoRepository : IProductoRepository
 
     public decimal ObtenerPrecioPromedio()
     {
-        if (productos.Count == 0) return 0;
+        if (_productos.Count == 0) return 0;
         return _productos.Average(p => p.Precio);
     }
 
     public Producto? productoMasCaro()
     {
-        return _productos.MaxBy(p: Producto => p.Precio);
+        return _productos.MaxBy(p => p.Precio);
     }
 
     public Dictionary<CategoriaProducto, decimal> ObtenerValorTotalPorCategoria()
     {
-        return _productos.GroupBy(p: Producto => p.Categoria)
+        return _productos.GroupBy(p => p.Categoria)
                          .ToDictionary(g => g.Key, g => g.Sum(p => p.Precio * p.Cantidad));
     }
 
@@ -155,6 +166,7 @@ public class InMemoryProductoRepository : IProductoRepository
     {
         return _productos.Where(p => p.Cantidad < umbral).ToList();
     }
+
 
 }
 
