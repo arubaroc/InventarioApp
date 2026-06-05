@@ -1,6 +1,21 @@
 namespace InventarioApp.Infrastructure;
 
-public class Filemanager
+/// <summary>
+/// Clase de utilidad para operaciones de archivos.
+/// Centraliza toda la lógica de I/O en un solo lugar.
+/// 
+/// Métodos de System.IO utilizados:
+/// - File.WriteAllText: Crea/sobreescribe archivo
+/// - File.ReadAllText: Lee todo el contenido
+/// - File.AppendAllText: Agrega al final
+/// - File.Exists: Verifica existencia
+/// - File.Delete: Elimina archivo
+/// - File.ReadAllLines: Lee línea por línea
+/// - File.WriteAllLines: Escribe líneas
+/// - Directory.CreateDirectory: Crea carpetas
+/// - Directory.GetFiles: Lista archivos con patrón
+/// </summary>
+public class FileManager
 {
     public void Escribir(string ruta, string contenido)
     {
@@ -17,14 +32,14 @@ public class Filemanager
         File.AppendAllText(ruta, contenido);
     }
 
-    public bool ExisteArchivo(string ruta)
+    public bool Existe(string ruta)
     {
         return File.Exists(ruta);
     }
 
-    public void EliminarArchivo(string ruta)
+    public void Eliminar(string ruta)
     {
-        if (File.Exists(ruta))
+        if (Existe(ruta))
         {
             File.Delete(ruta);
         }
@@ -42,19 +57,14 @@ public class Filemanager
 
     public void CrearDirectorio(string ruta)
     {
-        if (!Directory.Exists(ruta))
-        {
-            Directory.CreateDirectory(ruta);
-        }
+        Directory.CreateDirectory(ruta);
     }
 
     public string[] ObtenerArchivos(string directorio, string patron = "*")
     {
-        if (Directory.Exists(directorio))
-        {
-            return Directory.GetFiles(directorio, patron);
-        }
-        return Array.Empty<string>();
-    }
+        if (!Directory.Exists(directorio))
+            return Array.Empty<string>();
 
+        return Directory.GetFiles(directorio, patron);
+    }
 }
