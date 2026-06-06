@@ -1,0 +1,24 @@
+[
+  {
+    "Id": 1,
+    "Nombre": "Laptop HP",
+    "Descripcion": "Laptop HP Pavilion 15 con procesador Intel Core i7, 16GB RAM, 512GB SSD",
+    "Precio": 1200.00,
+    "Cantidad": 10,
+    "Categoria": "Electronica",
+    "Estado": "Activo",
+    "FechaRegistro": "0001-01-01T00:00:00",
+    "ValorTotal": 12000.00
+  },
+  {
+    "Id": 2,
+    "Nombre": "Tel\u00E9fono Samsung",
+    "Descripcion": "Tel\u00E9fono Samsung Galaxy S21 con pantalla AMOLED, 128GB almacenamiento",
+    "Precio": 800.00,
+    "Cantidad": 20,
+    "Categoria": "Electronica",
+    "Estado": "Activo",
+    "FechaRegistro": "0001-01-01T00:00:00",
+    "ValorTotal": 16000.00
+  }
+]
