@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
+// using System.Linq;
 using System.Text;
 using System.Text.Json;
 
@@ -61,10 +61,51 @@ public class GeneradorReportes
     public string GenerarReporteTopProductos(int cantidad = 5)
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"Productos Top {cantidad} productos por su cantidad -----------");
+        sb.AppendLine($"Productos Top {cantidad}  por su cantidad -----------");
 
-        var top = _productos.OrderByDescending(p => p.Cantidad)
+        var top = _productos.OrderByDescending(p => p.ValorTotal).Take(cantidad);
+
+        if (!top.Any())
+        {
+            sb.AppendLine("No hay productos disponibles");
+            return sb.ToString();
+        }
+        int posicion = 1;
+
+        foreach (var producto in top)
+        {
+            sb.AppendLine($"{posicion}. {producto.Nombre} | {producto.Cantidad} | Valor: ${producto.ValorTotal:F2}");
+            posicion++;
+        }
 
         return sb.ToString();
     }
+
+    public string ExportarCsv()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("Id, Nombre, Precio, Cantidad, Categoria, ValorTotal");
+
+        foreach (var producto in _productos.OrderBy(p=> p.Id))
+        {
+            sb.AppendLine($"{producto.Id}, {producto.Nombre}, {producto.Precio:F2}, {producto.Cantidad}, {producto.Categoria}, {producto.ValorTotal:F2}");
+        }
+
+        return sb.ToString();
+        
+    }
+
+    public string ExportarResumenJson()
+    {
+        var resumen = new
+        {
+            totalProductos = _productos.Count(),
+            ValorTotalInventario = _productos.Sum(p=>p.ValorTotal),
+            ProductosPorCategoria = _productos.GroupBy(p=>p.Categoria).Select(g => new {Categoria = g.Key, Cantidad = g.Count()}),
+            TopProductos = _productos.OrderByDescending(p=> p.ValorTotal).Take(5).Select(p=> new {p.Id, p.Nombre, p.Cantidad, p.ValorTotal})
+        };
+
+        return JsonSerializer.Serialize(resumen, new JsonSerializerOptions {WriteIndented = true});
+    }
+    
 }

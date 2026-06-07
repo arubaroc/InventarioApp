@@ -151,7 +151,7 @@ public class InMemoryProductoRepository : IProductoRepository
         return _productos.Average(p => p.Precio);
     }
 
-    public Producto? productoMasCaro()
+    public Producto? ObtenerProductoMasCaro()
     {
         return _productos.MaxBy(p => p.Precio);
     }
