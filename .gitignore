@@ -10,6 +10,7 @@ obj/
 #Archivos temporales
 *.log
 *.temp
+*.json
 
 #Archivos del sistema
 .DS_Store
